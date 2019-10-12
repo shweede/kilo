@@ -18,8 +18,15 @@ char ctrlKey(char key)
     return key & 0x1f;
 }
 
+void editorClearScreen()
+{
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[H", 3);
+}
+
 void die(const char *s)
 {
+    editorClearScreen();
     perror(s);
     exit(1);
 }
@@ -63,12 +70,21 @@ char editorReadKey()
     return c;
 }
 
+/*** output ***/
+
+void editorRefreshScreen()
+{
+    editorClearScreen();
+}
+
 /*** input ***/
 
-void editorProcessKeypress() {
+void editorProcessKeypress()
+{
     char c = editorReadKey();
 
     if (c == ctrlKey('q')) {
+        editorClearScreen();
         exit(0);
     }
 }
@@ -80,6 +96,7 @@ int main()
     enableRawMode();
 
     while (1) {
+        editorRefreshScreen();
         editorProcessKeypress();
     }
 
